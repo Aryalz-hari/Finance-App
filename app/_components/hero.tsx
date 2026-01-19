@@ -34,7 +34,7 @@ export default function LandingPage() {
           </div>
 
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#00b4d8] to-[#ade8f4] blur-3xl opacity-40 rounded-full" />
+            <div className="absolute inset-0 bg-linear-to-tr from-[#00b4d8] to-[#ade8f4] blur-3xl opacity-40 rounded-full" />
             <div className="relative bg-white/10 backdrop-blur-md p-8 rounded-3xl shadow-xl">
               <h3 className="text-xl font-semibold mb-4">Monthly Overview</h3>
               <ul className="space-y-3 text-sm">
