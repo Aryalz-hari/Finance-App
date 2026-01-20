@@ -19,13 +19,13 @@ export default function LandingPage() {
 
             <div className="mt-8 flex gap-4">
               <Link
-                href="/signup"
+                href="/sign-up"
                 className="bg-green-500 hover:bg-green-600 border border-white/30 px-7 py-3 rounded-xl font-medium  transition"
               >
                 Create Account
               </Link>
               <Link
-                href="/login"
+                href="/sign-in"
                 className="bg-white/10 px-7 py-3 rounded-xl font-medium hover:bg-white/20 transition"
               >
                 Login
@@ -71,7 +71,7 @@ export default function LandingPage() {
 
             <div className="mt-4 flex justify-center gap-4 sm:mt-6">
               <Link
-                href="/"
+                href="/sign-in"
                 className="bg-green-500 text-white hover:bg-green-600 border border-white/30 px-7 py-3 rounded-xl font-medium  transition"
               >
                 Get Started
