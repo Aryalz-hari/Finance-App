@@ -1,43 +1,53 @@
+"use client"
+
+
 import React from 'react'
 import Image from 'next/image'
 import { LayoutDashboard, Receipt, PiggyBank, Menu } from "lucide-react";
 import Link from 'next/link';
 import { UserButton } from '@clerk/nextjs';
+import { usePathname } from 'next/navigation';
 const menuItems = [
   {
     id: 1,
     title: "Dashboard",
     icon: <LayoutDashboard />,
-    href: "/#",
+    href: "/dashboard",
   },
   {
     id: 2,
     title: "Expenses",
     icon: <Receipt/>,
-    href: "/#",
+    href: "/dashboard/expenses",
   },
   {
     id: 3,
     title: "Budgets",
     icon: <PiggyBank />,
-    href: "/#",
+    href: "/dashboard/budgets",
   },
 ];
 
 
 export default function Sidebar() {
+  const path= usePathname();
+  console.log(path)
   return (
     <div className="h-screen shadow-sm ">
-      <div className=" p-2 flex items-center  border-b border-white/10">
+      <div className=" p-2 flex items-center">
         <Image src="/logo.svg" width={40} height={40} alt="logo"></Image>
         <span className="ml-2 text-white font-jost">Finance App</span>
       </div>
-      <div className="flex flex-col p-2 ml-2  mt-2 gap-3 ">
+      <div className="flex flex-col p-2 m-2  mt-2 gap-3 ">
         {menuItems.map((item) => (
           <Link
             key={item.id}
             href={item.href}
-            className="flex items-center gap-2 text-gray-300 hover:text-green-400 transition-colors"
+            className={`flex items-center gap-2 p-2 text-gray-300 rounded-lg transition-colors ${
+              path === item.href
+                ? "bg-green-600 text-gray-300"
+                : "text-gray-300 hover:text-green-400"
+            }`}
           >
             {item.icon}
             <span>{item.title}</span>
@@ -45,8 +55,7 @@ export default function Sidebar() {
         ))}
       </div>
       <div className=" flex items-center gap-2 fixed bottom-10 p-2 ml-2 text-gray-300 ">
-        
-          <UserButton />
+        <UserButton />
         Profile
       </div>
     </div>

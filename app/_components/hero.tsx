@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function LandingPage() {
   return (
     <>
-      <div className="min-h-screen bg-blue-950 text-white border-b border-white/10 py-2">
+      {/* <div className="min-h-screen bg-blue-950 text-white border-b border-white/10 py-2"> */}
         <main className="mt-20 max-w-7xl mx-auto px-8 pt-24 grid md:grid-cols-2 gap-16 items-center sm:mb-2 ">
           <div>
             <h1 className="text-4xl md:text-5xl font-bold leading-tight">
@@ -58,7 +58,7 @@ export default function LandingPage() {
             </div>
           </div>
         </main>
-      </div>
+      {/* </div> */}
 
       <section className="bg-blue-950 lg:grid lg:h-screen lg:place-content-center dark:bg-gray-900">
         <div className="mx-auto w-screen max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-32">
