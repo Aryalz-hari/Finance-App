@@ -8,7 +8,9 @@ export default function Home() {
   return (
     <>
       <Header />
-      <LandingPage/>
+      <div>
+        <LandingPage />
+      </div>
     </>
   );
 }
