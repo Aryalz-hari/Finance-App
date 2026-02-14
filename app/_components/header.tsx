@@ -17,8 +17,8 @@ export default function Header() {
     const router = useRouter();
   const { user, isSignedIn} = useUser();
   return (
-    <div className="bg-blue-950 border-b border-white/10">
-      <div className="flex items-center justify-between max-w-6xl mx-auto shadow-lg w-full py-1">
+    <div className="bg-primary border-b border-white/10">
+      <div className="flex items-center justify-between max-w-6xl mx-auto shadow-lg w-full py-3">
         <div className="flex items-center">
           <Image
             src="/logo.svg"
