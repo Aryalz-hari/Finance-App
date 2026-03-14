@@ -344,38 +344,6 @@ export default function ExpenseTrackerLandingPage() {
         <div className="absolute top-24 right-0 h-80 w-80 rounded-full bg-cyan-400/20 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl px-6 py-8 lg:px-8">
-          <header className="flex items-center justify-between rounded-full border border-white/10 bg-white/5 px-5 py-3 backdrop-blur">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-400 text-slate-950 font-bold shadow-lg shadow-emerald-500/30">
-                ET
-              </div>
-              <div>
-                <p className="text-sm font-semibold tracking-wide">
-                  ExpenseFlow
-                </p>
-                <p className="text-xs text-slate-400">
-                  Personal expense tracker
-                </p>
-              </div>
-            </div>
-
-            <nav className="hidden items-center gap-8 text-sm text-slate-300 md:flex">
-              <a href="#features" className="hover:text-white transition">
-                Features
-              </a>
-              <a href="#how-it-works" className="hover:text-white transition">
-                How it works
-              </a>
-              <a href="#pricing" className="hover:text-white transition">
-                Pricing
-              </a>
-            </nav>
-
-            <button className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:scale-[1.02]">
-              Get Started
-            </button>
-          </header>
-
           <div className="grid items-center gap-14 py-20 lg:grid-cols-2 lg:py-24">
             <div>
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm text-emerald-300">
