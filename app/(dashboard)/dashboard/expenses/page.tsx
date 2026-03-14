@@ -88,7 +88,7 @@ export default function Expenses() {
           </div>
 
           <div className="mt-6 overflow-x-auto pb-2">
-            <div className="flex min-w-[560px] items-end justify-between gap-3 sm:gap-4 md:gap-5">
+            <div className="flex min-w-140 items-end justify-between gap-3 sm:gap-4 md:gap-5">
               {weeklySpending.map((item) => {
                 const height = `${(item.amount / maxAmount) * 100}%`;
                 return (
@@ -99,9 +99,9 @@ export default function Expenses() {
                     <span className="text-xs sm:text-sm font-semibold text-slate-700">
                       ${item.amount}
                     </span>
-                    <div className="relative flex h-40 sm:h-48 md:h-52 w-full min-w-[60px] items-end rounded-xl sm:rounded-2xl bg-slate-100">
+                    <div className="relative flex h-40 sm:h-48 md:h-52 w-full min-w-15 items-end rounded-xl sm:rounded-2xl bg-slate-100">
                       <div
-                        className="w-full rounded-xl sm:rounded-2xl bg-gradient-to-t from-emerald-500 to-teal-400 transition-all duration-300"
+                        className="w-full rounded-xl sm:rounded-2xl bg-linear-to-t from-emerald-500 to-teal-400 transition-all duration-300"
                         style={{ height }}
                       />
                     </div>
