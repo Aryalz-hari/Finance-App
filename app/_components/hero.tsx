@@ -339,7 +339,7 @@ export default function ExpenseTrackerLandingPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-cyan-500/10 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-br from-emerald-500/20 via-cyan-500/10 to-transparent" />
         <div className="absolute -top-24 -left-16 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
         <div className="absolute top-24 right-0 h-80 w-80 rounded-full bg-cyan-400/20 blur-3xl" />
 
@@ -385,8 +385,8 @@ export default function ExpenseTrackerLandingPage() {
             </div>
 
             <div className="relative">
-              <div className="rounded-[2rem] border border-white/10 bg-white/5 p-4 shadow-2xl shadow-black/30 backdrop-blur">
-                <div className="rounded-[1.5rem] bg-slate-900 p-5">
+              <div className="rounded-4xl border border-white/10 bg-white/5 p-4 shadow-2xl shadow-black/30 backdrop-blur">
+                <div className="rounded-3xl bg-slate-900 p-5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-slate-400">Total balance</p>
@@ -429,7 +429,7 @@ export default function ExpenseTrackerLandingPage() {
                           </div>
                           <div className="h-3 rounded-full bg-slate-700">
                             <div
-                              className={`h-3 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 ${item.width}`}
+                              className={`h-3 rounded-full bg-linear-to-r from-emerald-400 to-cyan-400 ${item.width}`}
                             />
                           </div>
                         </div>
@@ -490,7 +490,7 @@ export default function ExpenseTrackerLandingPage() {
         id="how-it-works"
         className="mx-auto max-w-7xl px-6 py-8 lg:px-8"
       >
-        <div className="grid gap-10 rounded-[2rem] border border-white/10 bg-white/5 p-8 md:p-12 lg:grid-cols-2">
+        <div className="grid gap-10 rounded-4xl border border-white/10 bg-white/5 p-8 md:p-12 lg:grid-cols-2">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">
               How it works
@@ -510,7 +510,7 @@ export default function ExpenseTrackerLandingPage() {
                 key={step}
                 className="flex gap-4 rounded-3xl bg-slate-900/70 p-5"
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 font-bold text-slate-950">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-400 to-cyan-400 font-bold text-slate-950">
                   {index + 1}
                 </div>
                 <div>
@@ -527,7 +527,7 @@ export default function ExpenseTrackerLandingPage() {
       </section>
 
       <section id="pricing" className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
-        <div className="rounded-[2rem] border border-emerald-400/20 bg-gradient-to-br from-emerald-400/10 to-cyan-400/10 p-8 text-center md:p-12">
+        <div className="rounded-4xl border border-emerald-400/20 bg-linear-to-br from-emerald-400/10 to-cyan-400/10 p-8 text-center md:p-12">
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-300">
             Pricing
           </p>
@@ -539,7 +539,7 @@ export default function ExpenseTrackerLandingPage() {
             grip on everyday spending.
           </p>
 
-          <div className="mx-auto mt-10 max-w-md rounded-[2rem] border border-white/10 bg-slate-950/70 p-8 shadow-2xl shadow-black/20">
+          <div className="mx-auto mt-10 max-w-md rounded-4xl border border-white/10 bg-slate-950/70 p-8 shadow-2xl shadow-black/20">
             <p className="text-sm text-slate-400">Free plan</p>
             <div className="mt-3 flex items-end justify-center gap-2">
               <span className="text-5xl font-bold">$0</span>

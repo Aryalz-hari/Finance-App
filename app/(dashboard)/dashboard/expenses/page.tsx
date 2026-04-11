@@ -1,203 +1,236 @@
-// import React from 'react'
+"use client";
 
-// export default function Expenses() {
-//   return (
-//     <div>Expenses</div>
-//   )
-// }
-export default function Expenses() {
-  const weeklySpending = [
-    { day: "Sun", amount: 32 },
-    { day: "Mon", amount: 48 },
-    { day: "Tue", amount: 26 },
-    { day: "Wed", amount: 64 },
-    { day: "Thu", amount: 41 },
-    { day: "Fri", amount: 72 },
-    { day: "Sat", amount: 55 },
+import React from "react";
+import {
+  Search,
+  Plus,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Pencil,
+  Trash2,
+} from "lucide-react";
+
+export default function ExpensesPage() {
+  // Chart Data
+  const chartData = [
+    { date: "Dec 30", amount: 120 },
+    { date: "Dec 31", amount: 85 },
+    { date: "Jan 01", amount: 50 },
+    { date: "Jan 02", amount: 45 },
+    { date: "Jan 03", amount: 210 },
+    { date: "Jan 04", amount: 140 },
+    { date: "Jan 05", amount: 170 },
   ];
+  const maxChartValue = 220;
+  const yAxisLabels = [220, 165, 110, 55, 0];
 
+  // Transaction Data
   const transactions = [
     {
       id: 1,
-      title: "Groceries",
-      category: "Food",
-      date: "Today, 10:30 AM",
-      amount: "-$24.50",
+      title: "Grocery Shopping",
+      category: "Food & Dining",
+      date: "Jan 5, 2026",
+      amount: -156.5,
       type: "expense",
     },
     {
       id: 2,
-      title: "Taxi Fare",
-      category: "Transport",
-      date: "Today, 8:15 AM",
-      amount: "-$8.20",
-      type: "expense",
+      title: "Monthly Salary",
+      category: "Salary",
+      date: "Jan 1, 2026",
+      amount: 5500.0,
+      type: "income",
     },
     {
       id: 3,
-      title: "Netflix Subscription",
-      category: "Entertainment",
-      date: "Yesterday, 9:00 PM",
-      amount: "-$12.99",
+      title: "Electric Bill",
+      category: "Utilities",
+      date: "Jan 4, 2026",
+      amount: -89.0,
       type: "expense",
     },
     {
       id: 4,
-      title: "Freelance Payment",
-      category: "Income",
-      date: "Yesterday, 2:45 PM",
-      amount: "+$120.00",
-      type: "income",
+      title: "Netflix Subscription",
+      category: "Entertainment",
+      date: "Jan 3, 2026",
+      amount: -15.99,
+      type: "expense",
     },
     {
       id: 5,
-      title: "Coffee",
-      category: "Food",
-      date: "Mar 12, 7:50 AM",
-      amount: "-$3.75",
+      title: "Gas Station",
+      category: "Transportation",
+      date: "Jan 2, 2026",
+      amount: -45.0,
       type: "expense",
     },
     {
       id: 6,
-      title: "Internet Bill",
-      category: "Bills",
-      date: "Mar 11, 6:20 PM",
-      amount: "-$18.00",
+      title: "Coffee Shop",
+      category: "Food & Dining",
+      date: "Jan 5, 2026",
+      amount: -12.5,
+      type: "expense",
+    },
+    {
+      id: 7,
+      title: "Freelance Project",
+      category: "Freelance",
+      date: "Jan 2, 2026",
+      amount: 800.0,
+      type: "income",
+    },
+    {
+      id: 8,
+      title: "Gym Membership",
+      category: "Health",
+      date: "Jan 1, 2026",
+      amount: -50.0,
+      type: "expense",
+    },
+    {
+      id: 9,
+      title: "Online Course",
+      category: "Education",
+      date: "Jan 3, 2026",
+      amount: -199.0,
+      type: "expense",
+    },
+    {
+      id: 10,
+      title: "Restaurant Dinner",
+      category: "Food & Dining",
+      date: "Jan 4, 2026",
+      amount: -78.0,
       type: "expense",
     },
   ];
 
-  const maxAmount = Math.max(...weeklySpending.map((item) => item.amount));
-
   return (
-    <main className="min-h-screen bg-slate-50 p-3 sm:p-4 md:p-6 lg:p-8">
-      <div className="mx-auto w-full max-w-6xl space-y-4 sm:space-y-6">
-        <section className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 md:p-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs sm:text-sm font-medium text-slate-500">
-                Expense overview
-              </p>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900">
-                Daily Spending
-              </h1>
-            </div>
-            <div className="w-fit rounded-xl sm:rounded-2xl bg-slate-100 px-3 py-2 text-xs sm:text-sm font-medium text-slate-600">
-              Last 7 days
-            </div>
-          </div>
+    <div className="px-4 py-6 sm:px-6 md:px-8 max-w-[1400px] mx-auto w-full">
+      {/* Page Header */}
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+          Expenses
+        </h1>
+        <p className="mt-1 text-sm text-slate-400 sm:text-base">
+          Manage your transactions
+        </p>
+      </div>
 
-          <div className="mt-6 overflow-x-auto pb-2">
-            <div className="flex min-w-140 items-end justify-between gap-3 sm:gap-4 md:gap-5">
-              {weeklySpending.map((item) => {
-                const height = `${(item.amount / maxAmount) * 100}%`;
-                return (
-                  <div
-                    key={item.day}
-                    className="flex flex-1 flex-col items-center gap-2 sm:gap-3"
-                  >
-                    <span className="text-xs sm:text-sm font-semibold text-slate-700">
-                      ${item.amount}
-                    </span>
-                    <div className="relative flex h-40 sm:h-48 md:h-52 w-full min-w-15 items-end rounded-xl sm:rounded-2xl bg-slate-100">
-                      <div
-                        className="w-full rounded-xl sm:rounded-2xl bg-linear-to-t from-emerald-500 to-teal-400 transition-all duration-300"
-                        style={{ height }}
-                      />
-                    </div>
-                    <span className="text-xs sm:text-sm font-medium text-slate-500">
-                      {item.day}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
+      {/* Chart Section */}
+      <section className="mb-8 rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_0_0_1px_rgba(15,23,42,0.3)] backdrop-blur sm:p-6">
+        <h2 className="text-lg font-semibold text-white mb-6">
+          Daily Spending
+        </h2>
 
-        <section className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 md:p-6">
-          <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="relative w-full md:max-w-md">
-              <input
-                type="text"
-                placeholder="Search transactions"
-                className="w-full rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:bg-white"
-              />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
-              >
-                <circle cx="11" cy="11" r="7" />
-                <path d="m20 20-3.5-3.5" />
-              </svg>
-            </div>
-
-            <button className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600">
-              <span className="text-lg leading-none">+</span>
-              Add Transaction
-            </button>
-          </div>
-        </section>
-
-        <section className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 md:p-6">
-          <div className="mb-5 flex items-center justify-between">
-            <div>
-              <h2 className="text-lg sm:text-xl font-bold text-slate-900">
-                Recent Transactions
-              </h2>
-              <p className="text-sm text-slate-500">
-                Track your latest income and expenses
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-3 sm:space-y-4">
-            {transactions.map((transaction) => (
+        <div className="relative h-[200px] w-full mt-4 flex items-end pt-4 pr-2">
+          {/* Y-Axis Guidelines */}
+          <div className="absolute inset-0 flex flex-col justify-between pb-8">
+            {yAxisLabels.map((label, i) => (
               <div
-                key={transaction.id}
-                className="flex flex-col gap-4 rounded-xl sm:rounded-2xl border border-slate-200 p-4 transition hover:bg-slate-50 md:flex-row md:items-center md:justify-between"
+                key={i}
+                className="relative w-full border-t border-dashed border-slate-800/80"
               >
-                <div className="flex min-w-0 items-start gap-3 sm:gap-4">
-                  <div
-                    className={`flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl text-base sm:text-lg font-bold ${
-                      transaction.type === "income"
-                        ? "bg-emerald-100 text-emerald-600"
-                        : "bg-rose-100 text-rose-600"
-                    }`}
-                  >
-                    {transaction.type === "income" ? "+" : "-"}
-                  </div>
-
-                  <div className="min-w-0">
-                    <h3 className="truncate font-semibold text-slate-900">
-                      {transaction.title}
-                    </h3>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs sm:text-sm text-slate-500">
-                      <span>{transaction.category}</span>
-                      <span>•</span>
-                      <span>{transaction.date}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className={`text-sm sm:text-base font-bold md:text-right ${
-                    transaction.type === "income"
-                      ? "text-emerald-600"
-                      : "text-slate-900"
-                  }`}
-                >
-                  {transaction.amount}
-                </div>
+                <span className="absolute -top-3 -left-2 bg-[#0a101f] pr-2 text-xs text-slate-500 w-10 text-right">
+                  ${label}
+                </span>
               </div>
             ))}
           </div>
-        </section>
+
+          {/* Bars - FIXED: Added mb-8 so the bars rest perfectly on the zero line */}
+          <div className="relative z-10 flex w-full h-[168px] items-end justify-between pl-12 pr-4 mb-8">
+            {chartData.map((data, index) => {
+              const heightPercentage = (data.amount / maxChartValue) * 100;
+              return (
+                <div
+                  key={index}
+                  className="relative flex flex-col justify-end items-center flex-1 h-full mx-1 sm:mx-2 md:mx-4 group"
+                >
+                  <div
+                    className="w-full bg-red-500/90 rounded-sm transition-all duration-300 group-hover:bg-red-400 max-w-[80px]"
+                    style={{ height: `${heightPercentage}%` }}
+                  ></div>
+                  <span className="absolute -bottom-6 text-[10px] sm:text-xs text-slate-500 whitespace-nowrap">
+                    {data.date}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Controls Section */}
+      <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+        <div className="relative w-full sm:max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <input
+            type="text"
+            placeholder="Search transactions..."
+            className="w-full pl-10 pr-4 py-2 bg-slate-900/70 border border-slate-800 rounded-lg text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+          />
+        </div>
+        <button className="flex items-center justify-center gap-2 px-4 py-2 bg-[#14f1b2] hover:bg-[#10d49b] text-slate-900 font-medium rounded-lg transition-colors shadow-sm">
+          <Plus className="w-4 h-4" />
+          <span>Add Transaction</span>
+        </button>
       </div>
-    </main>
+
+      {/* Transactions List */}
+      <div className="flex flex-col gap-2">
+        {transactions.map((tx) => (
+          <div
+            key={tx.id}
+            className="flex items-center justify-between p-4 rounded-xl border border-slate-800/50 bg-slate-900/40 hover:bg-slate-800/40 transition-colors"
+          >
+            <div className="flex items-center gap-4">
+              <div
+                className={`flex items-center justify-center w-10 h-10 rounded-lg shrink-0 ${
+                  tx.type === "expense"
+                    ? "bg-red-500/15 text-red-400"
+                    : "bg-emerald-500/15 text-emerald-400"
+                }`}
+              >
+                {tx.type === "expense" ? (
+                  <ArrowUpRight className="w-5 h-5" />
+                ) : (
+                  <ArrowDownLeft className="w-5 h-5" />
+                )}
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-white">{tx.title}</h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {tx.category} &bull; {tx.date}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 sm:gap-6">
+              <span
+                className={`text-sm font-semibold whitespace-nowrap ${
+                  tx.type === "expense" ? "text-red-400" : "text-emerald-400"
+                }`}
+              >
+                {tx.type === "expense" ? "" : "+"}$
+                {Math.abs(tx.amount).toFixed(2)}
+              </span>
+
+              <div className="flex items-center gap-3 text-slate-500">
+                <button className="hover:text-white transition-colors">
+                  <Pencil className="w-4 h-4" />
+                </button>
+                <button className="hover:text-red-400 transition-colors">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
