@@ -1,62 +1,72 @@
-"use client"
+"use client";
 
+import React from "react";
+import Image from "next/image";
+import { LayoutDashboard, Receipt, PiggyBank, X } from "lucide-react"; // Import X icon
+import Link from "next/link";
+import { UserButton } from "@clerk/nextjs";
+import { usePathname } from "next/navigation";
 
-import React from 'react'
-import Image from 'next/image'
-import { LayoutDashboard, Receipt, PiggyBank, Menu } from "lucide-react";
-import Link from 'next/link';
-import { UserButton } from '@clerk/nextjs';
-import { usePathname } from 'next/navigation';
 const menuItems = [
-  {
-    id: 1,
-    title: "Dashboard",
-    icon: <LayoutDashboard />,
-    href: "/dashboard",
-  },
-  {
-    id: 2,
-    title: "Expenses",
-    icon: <Receipt/>,
-    href: "/dashboard/expenses",
-  },
-  {
-    id: 3,
-    title: "Budgets",
-    icon: <PiggyBank />,
-    href: "/dashboard/budgets",
-  },
+  { id: 1, title: "Dashboard", icon: <LayoutDashboard />, href: "/dashboard" },
+  { id: 2, title: "Expenses", icon: <Receipt />, href: "/dashboard/expenses" },
+  { id: 3, title: "Budgets", icon: <PiggyBank />, href: "/dashboard/budgets" },
 ];
 
+// Add onClose to the props
+export default function Sidebar({ onClose }: { onClose?: () => void }) {
+  const path = usePathname();
 
-export default function Sidebar() {
-  const path= usePathname();
-  console.log(path)
   return (
-    <div className="h-screen shadow-sm ">
-      <div className=" p-2 flex items-center">
-        <Image src="/logo.svg" width={40} height={40} alt="logo"></Image>
-        <span className="ml-2 text-white font-jost">Finance App</span>
-      </div>
-      <div className="flex flex-col p-2 m-2  mt-2 gap-3 ">
-        {menuItems.map((item) => (
-          <Link
-            key={item.id}
-            href={item.href}
-            className={`flex items-center gap-2 p-2 text-gray-300 rounded-lg transition-colors ${
-              path === item.href
-                ? "bg-green-600 text-gray-300"
-                : "text-gray-300 hover:text-green-400"
-            }`}
+    <div className="flex flex-col h-full bg-[#020817] text-slate-300">
+      {/* Logo Area updated with optional Close Button */}
+      <div className="flex items-center justify-between h-16 px-6 border-b border-slate-800 shrink-0">
+        <div className="flex items-center">
+          <Image src="/logo.svg" width={32} height={32} alt="logo" />
+          <span className="ml-3 text-white font-semibold tracking-wide">
+            Finance App
+          </span>
+        </div>
+
+        {/* Render close button ONLY if onClose is provided (mobile view) */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="md:hidden p-1 -mr-2 text-slate-400 hover:text-white transition-colors"
           >
-            {item.icon}
-            <span>{item.title}</span>
-          </Link>
-        ))}
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
-      <div className=" flex items-center gap-2 fixed bottom-10 p-2 ml-2 text-gray-300 ">
-        <UserButton />
-        Profile
+
+      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        {menuItems.map((item) => {
+          const isActive = path === item.href;
+          return (
+            <Link
+              key={item.id}
+              href={item.href}
+              onClick={onClose} // Auto-close sidebar when a link is clicked on mobile
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                isActive
+                  ? "bg-emerald-500/15 text-emerald-400 font-medium border border-emerald-500/20"
+                  : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
+              }`}
+            >
+              {React.cloneElement(item.icon as React.ReactElement, {
+                className: "w-5 h-5",
+              })}
+              <span>{item.title}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="p-4 pb-10 border-t border-slate-800 shrink-0">
+        <div className="flex items-center gap-3 px-3 py-2">
+          <UserButton />
+          <span className="text-sm font-medium text-slate-300">Profile</span>
+        </div>
       </div>
     </div>
   );

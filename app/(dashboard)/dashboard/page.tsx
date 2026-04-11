@@ -1,13 +1,4 @@
-"use client"
-
-// import React from 'react'
-
-// export default function Dashboard() {
-
-//   return (
-//     <div  className=''>Dashboard</div>
-//   )
-// }
+"use client";
 
 import { Wallet, TrendingUp, TrendingDown, Target } from "lucide-react";
 
@@ -78,7 +69,7 @@ export default function Dashboard() {
     0,
   );
 
-  const createLinePath = (values:number[]) => {
+  const createLinePath = (values: number[]) => {
     const width = 100;
     const height = 100;
     return values
@@ -90,7 +81,7 @@ export default function Dashboard() {
       .join(" ");
   };
 
-  const createAreaPath = (values:number[]) => {
+  const createAreaPath = (values: number[]) => {
     const line = createLinePath(values);
     return `${line} L100,100 L0,100 Z`;
   };
@@ -101,7 +92,12 @@ export default function Dashboard() {
     cumulative += item.value;
     const end = cumulative / totalCategoryValue;
 
-    const polarToCartesian = (cx:number, cy:number, r:number, angle:number) => {
+    const polarToCartesian = (
+      cx: number,
+      cy: number,
+      r: number,
+      angle: number,
+    ) => {
       const radians = ((angle - 90) * Math.PI) / 180;
       return {
         x: cx + r * Math.cos(radians),
@@ -130,190 +126,186 @@ export default function Dashboard() {
   });
 
   return (
-    <main className="min-h-screen bg-[#020817] px-3 py-4 text-white sm:px-4 sm:py-5 md:px-6 md:py-6 lg:px-8">
-      <div className="mx-auto max-w-[1400px]">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-            Dashboard
-          </h1>
-          <p className="mt-1 text-sm text-slate-400 sm:text-base">
-            Track your financial overview
-          </p>
-        </div>
+    <div className="px-4 py-6 sm:px-6 md:px-8 max-w-[1400px] mx-auto w-full">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+          Dashboard
+        </h1>
+        <p className="mt-1 text-sm text-slate-400 sm:text-base">
+          Track your financial overview
+        </p>
+      </div>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {summaryCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <div
-                key={card.title}
-                className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_0_0_1px_rgba(15,23,42,0.3)] backdrop-blur"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-medium text-slate-400">
-                      {card.title}
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {summaryCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={card.title}
+              className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_0_0_1px_rgba(15,23,42,0.3)] backdrop-blur"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-slate-400">
+                    {card.title}
+                  </p>
+                  <p className="mt-2 text-3xl font-bold tracking-tight text-white">
+                    {card.value}
+                  </p>
+                  <p className="mt-1 text-sm text-slate-500">{card.subtitle}</p>
+                  {card.extra ? (
+                    <p
+                      className={`mt-2 text-sm font-semibold ${card.extraColor}`}
+                    >
+                      {card.extra}
                     </p>
-                    <p className="mt-2 text-3xl font-bold tracking-tight text-white">
-                      {card.value}
-                    </p>
-                    <p className="mt-1 text-sm text-slate-500">
-                      {card.subtitle}
-                    </p>
-                    {card.extra ? (
-                      <p
-                        className={`mt-2 text-sm font-semibold ${card.extraColor}`}
-                      >
-                        {card.extra}
-                      </p>
-                    ) : null}
-                  </div>
-                  <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${card.iconWrapper}`}
-                  >
-                    <Icon className="h-5 w-5" />
-                  </div>
+                  ) : null}
                 </div>
-              </div>
-            );
-          })}
-        </section>
-
-        <section className="mt-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 sm:p-6">
-            <h2 className="text-xl font-semibold text-white">Spending Trend</h2>
-
-            <div className="mt-6 overflow-x-auto">
-              <div className="min-w-[680px]">
-                <div className="relative h-[260px] sm:h-[300px]">
-                  {[0, 1500, 3000, 4500, 6000].reverse().map((tick) => {
-                    const top = `${100 - (tick / maxY) * 100}%`;
-                    return (
-                      <div
-                        key={tick}
-                        className="absolute left-0 right-0 border-t border-dashed border-slate-800"
-                        style={{ top }}
-                      >
-                        <span className="absolute -top-3 left-0 bg-slate-900/70 pr-2 text-xs text-slate-500">
-                          ${tick}
-                        </span>
-                      </div>
-                    );
-                  })}
-
-                  <div className="absolute inset-x-0 bottom-6 top-0 grid grid-cols-7">
-                    {trendLabels.map((label) => (
-                      <div
-                        key={label}
-                        className="relative border-l border-dashed border-slate-800 last:border-r"
-                      >
-                        <span className="absolute bottom-[-28px] left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-slate-500">
-                          {label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <svg
-                    viewBox="0 0 100 100"
-                    preserveAspectRatio="none"
-                    className="absolute inset-x-10 bottom-6 top-0 h-[calc(100%-24px)] w-[calc(100%-40px)]"
-                  >
-                    <defs>
-                      <linearGradient
-                        id="incomeFill"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="0%"
-                          stopColor="#14f1b2"
-                          stopOpacity="0.35"
-                        />
-                        <stop
-                          offset="100%"
-                          stopColor="#14f1b2"
-                          stopOpacity="0.02"
-                        />
-                      </linearGradient>
-                    </defs>
-
-                    <path
-                      d={createAreaPath(incomePoints)}
-                      fill="url(#incomeFill)"
-                    />
-                    <path
-                      d={createLinePath(incomePoints)}
-                      fill="none"
-                      stroke="#14f1b2"
-                      strokeWidth="0.7"
-                    />
-                    <path
-                      d={createLinePath(expensePoints)}
-                      fill="none"
-                      stroke="#ef4444"
-                      strokeWidth="0.7"
-                    />
-                  </svg>
-                </div>
-
-                <div className="mt-6 flex items-center justify-center gap-6 text-sm text-slate-400">
-                  <div className="flex items-center gap-2">
-                    <span className="h-3 w-3 rounded-full bg-red-500" />
-                    <span>Expenses</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="h-3 w-3 rounded-full bg-emerald-400" />
-                    <span>Income</span>
-                  </div>
+                <div
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${card.iconWrapper}`}
+                >
+                  <Icon className="h-5 w-5" />
                 </div>
               </div>
             </div>
-          </div>
+          );
+        })}
+      </section>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 sm:p-6">
-            <h2 className="text-xl font-semibold text-white">
-              Spending by Category
-            </h2>
+      <section className="mt-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 sm:p-6 w-full overflow-hidden">
+          <h2 className="text-xl font-semibold text-white">Spending Trend</h2>
 
-            <div className="mt-8 flex flex-col items-center justify-center">
-              <div className="relative h-[260px] w-[260px] sm:h-[290px] sm:w-[290px]">
+          {/* FIX: Changed overflow-x-auto to w-full, removed fixed min-w-[680px] */}
+          <div className="mt-6 w-full pb-4 overflow-x-auto">
+            {/* Reduced from 680px to 400px to allow it to shrink beautifully on mobile */}
+            <div className="w-full min-w-[400px]">
+              {/* FIX: Scaled down height slightly for mobile (h-[220px]) */}
+              <div className="relative h-[220px] sm:h-[300px]">
+                {[0, 1500, 3000, 4500, 6000].reverse().map((tick) => {
+                  const top = `${100 - (tick / maxY) * 100}%`;
+                  return (
+                    <div
+                      key={tick}
+                      className="absolute left-0 right-0 border-t border-dashed border-slate-800"
+                      style={{ top }}
+                    >
+                      {/* FIX: Scaled text down to text-[10px] on mobile */}
+                      <span className="absolute -top-3 left-0 bg-slate-900/70 pr-2 text-[10px] sm:text-xs text-slate-500">
+                        ${tick}
+                      </span>
+                    </div>
+                  );
+                })}
+
+                <div className="absolute inset-x-0 bottom-6 top-0 grid grid-cols-7">
+                  {trendLabels.map((label) => (
+                    <div
+                      key={label}
+                      className="relative border-l border-dashed border-slate-800 last:border-r"
+                    >
+                      {/* FIX: Scaled text down to text-[10px] on mobile to prevent overlapping */}
+                      <span className="absolute bottom-[-28px] left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] sm:text-xs text-slate-500">
+                        {label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
                 <svg
                   viewBox="0 0 100 100"
-                  className="h-full w-full drop-shadow-[0_0_20px_rgba(0,0,0,0.25)]"
+                  preserveAspectRatio="none"
+                  className="absolute inset-x-10 bottom-6 top-0 h-[calc(100%-24px)] w-[calc(100%-40px)]"
                 >
-                  {donutSegments.map((segment) => (
-                    <path
-                      key={segment.name}
-                      d={segment.d}
-                      fill={segment.color}
-                      stroke="#e2e8f0"
-                      strokeWidth="0.6"
-                    />
-                  ))}
+                  <defs>
+                    <linearGradient id="incomeFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop
+                        offset="0%"
+                        stopColor="#14f1b2"
+                        stopOpacity="0.35"
+                      />
+                      <stop
+                        offset="100%"
+                        stopColor="#14f1b2"
+                        stopOpacity="0.02"
+                      />
+                    </linearGradient>
+                  </defs>
+
+                  <path
+                    d={createAreaPath(incomePoints)}
+                    fill="url(#incomeFill)"
+                  />
+                  <path
+                    d={createLinePath(incomePoints)}
+                    fill="none"
+                    stroke="#14f1b2"
+                    strokeWidth="0.7"
+                  />
+                  <path
+                    d={createLinePath(expensePoints)}
+                    fill="none"
+                    stroke="#ef4444"
+                    strokeWidth="0.7"
+                  />
                 </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-24 w-24 rounded-full bg-slate-900/95 shadow-inner sm:h-28 sm:w-28" />
-                </div>
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-3 text-sm text-slate-400">
-                {categoryItems.map((item) => (
-                  <div key={item.name} className="flex items-center gap-2">
-                    <span
-                      className="h-3 w-3 rounded-sm"
-                      style={{ backgroundColor: item.color }}
-                    />
-                    <span>{item.name}</span>
-                  </div>
-                ))}
+              <div className="mt-6 flex items-center justify-center gap-6 text-xs sm:text-sm text-slate-400">
+                <div className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full bg-red-500" />
+                  <span>Expenses</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full bg-emerald-400" />
+                  <span>Income</span>
+                </div>
               </div>
             </div>
           </div>
-        </section>
-      </div>
-    </main>
+        </div>
+
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 sm:p-6 w-full flex flex-col">
+          <h2 className="text-xl font-semibold text-white">
+            Spending by Category
+          </h2>
+
+          {/* This donut chart is already responsive, but I ensured it stays centered */}
+          <div className="mt-8 flex flex-col flex-1 items-center justify-center">
+            <div className="relative h-[220px] w-[220px] sm:h-[290px] sm:w-[290px]">
+              <svg
+                viewBox="0 0 100 100"
+                className="h-full w-full drop-shadow-[0_0_20px_rgba(0,0,0,0.25)]"
+              >
+                {donutSegments.map((segment) => (
+                  <path
+                    key={segment.name}
+                    d={segment.d}
+                    fill={segment.color}
+                    stroke="#0a101f"
+                    strokeWidth="1.2"
+                  />
+                ))}
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="h-24 w-24 rounded-full bg-slate-900/95 shadow-inner sm:h-28 sm:w-28" />
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-3 text-xs sm:text-sm text-slate-400">
+              {categoryItems.map((item) => (
+                <div key={item.name} className="flex items-center gap-2">
+                  <span
+                    className="h-3 w-3 rounded-sm"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span>{item.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
