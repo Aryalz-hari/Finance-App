@@ -50,7 +50,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
                 isActive
                   ? "bg-emerald-500/15 text-emerald-400 font-medium border border-emerald-500/20"
-                  : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
+                  : "border border-transparent text-slate-400 hover:bg-slate-800/50 hover:text-white"
               }`}
             >
               {React.cloneElement(item.icon as React.ReactElement, {
