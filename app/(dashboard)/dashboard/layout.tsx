@@ -2,7 +2,9 @@
 
 import React, { useState } from "react";
 import Sidebar from "./_components/sidebar";
-import DashboardHeader from "./_components/header"; // Adjust path if needed
+import DashboardHeader from "./_components/header"; 
+import { useUser, UserButton } from "@clerk/nextjs";
+import type { UserResource } from "@clerk/types";
 
 export default function DashboardLayout({
   children,
@@ -10,6 +12,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const {user}=useUser();
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#020817]">
