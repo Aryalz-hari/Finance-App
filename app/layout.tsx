@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Jost } from "next/font/google";
-import "./globals.css";
+import "./global.css";
 import { ClerkProvider, SignInButton } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/sonner";
 const jost = Jost({
   subsets: ["latin"],
   variable: "--font-jost",
@@ -22,6 +23,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={`${jost.variable} font-sans antialiased`}>
+          <Toaster richColors/>
           {children}
         </body>
       </html>

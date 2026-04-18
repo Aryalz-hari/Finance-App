@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import CreateBudget from "./_components/CreateBudget";
 
 export default function Budgets() {
   const budgetOverview = [
@@ -23,7 +24,6 @@ export default function Budgets() {
   const maxTotal = Math.max(...budgetOverview.map((item) => item.total));
 
   return (
-    // Removed min-h-screen and explicit background so the Layout wrapper handles it naturally
     <main className="px-4 py-6 sm:px-6 md:px-8 max-w-[1400px] mx-auto w-full">
       <div className="mx-auto w-full space-y-4 sm:space-y-6">
         {/* Budget vs Spending Chart Section */}
@@ -65,10 +65,7 @@ export default function Budgets() {
                       className="relative flex h-44 w-full min-w-[84px] items-end rounded-2xl bg-slate-800/50 sm:h-52 overflow-hidden"
                       style={{ maxHeight: totalHeight }}
                     >
-                      {/* Darkened the background gradient for the total bar */}
                       <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-slate-800/80 to-slate-800/20" />
-
-                      {/* Adjusted to match the neon emerald green of the main theme */}
                       <div
                         className="relative w-full rounded-2xl bg-gradient-to-t from-[#14f1b2] to-emerald-500 transition-all duration-300"
                         style={{ height: spentHeight }}
@@ -113,11 +110,8 @@ export default function Budgets() {
               </p>
             </div>
 
-            {/* Styled to match the "Add Transaction" button from expenses */}
-            <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#14f1b2] px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-[#10d49b] sm:w-auto sm:rounded-2xl">
-              <span className="text-lg leading-none">+</span>
-              Add Budget
-            </button>
+            {/* Separate Component for Add Budget Dialog */}
+            <CreateBudget />
           </div>
         </section>
 
@@ -158,13 +152,12 @@ export default function Budgets() {
                       </div>
                     </div>
 
-                    {/* Dark inset container for stats */}
                     <div className="grid grid-cols-2 gap-3 rounded-2xl bg-[#0a101f] p-3 border border-slate-800/50">
                       <div>
                         <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
                           Spent
                         </p>
-                        <p className="mt-1 text-base font-bold text-white sm:text-lg">
+                        <p className="mt-1 text-base font-bold text-emerald-400 sm:text-lg">
                           ${item.spent}
                         </p>
                       </div>
@@ -172,7 +165,7 @@ export default function Budgets() {
                         <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
                           Remaining
                         </p>
-                        <p className="mt-1 text-base font-bold text-emerald-400 sm:text-lg">
+                        <p className="mt-1 text-base font-bold text-gray-400 sm:text-lg">
                           ${remaining}
                         </p>
                       </div>
