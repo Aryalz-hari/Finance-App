@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "./_components/sidebar";
 import DashboardHeader from "./_components/header"; 
-import { useUser, UserButton } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import type { UserResource } from "@clerk/types";
-
+import { db } from "@/utils/dbconfig";
+import { budgets } from "@/utils/schema";
+import { useRouter } from "next/navigation";
+import { eq } from "drizzle-orm";
 export default function DashboardLayout({
   children,
 }: {
@@ -13,6 +16,24 @@ export default function DashboardLayout({
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const {user}=useUser();
+  const router= useRouter();
+useEffect(()=>{
+user&&checkUserBudgets();
+},[user])
+
+  
+  const checkUserBudgets = async () => {
+  const result = await db
+    .select()
+    .from(budgets)
+    .where(eq(budgets.createdBy, user?.primaryEmailAddress?.emailAddress));
+
+  console.log(result);
+
+  if (result?.length === 0) {
+    router.replace("/dashboard/budgets");
+  }
+};
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#020817]">
