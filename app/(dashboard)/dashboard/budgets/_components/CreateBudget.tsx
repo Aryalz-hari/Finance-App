@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation"; // 1. Import useRouter
 import {
   Dialog,
   DialogContent,
@@ -16,16 +17,14 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
 import { db } from "@/utils/dbconfig";
 import { budgets } from "@/utils/schema";
-import { toast } from "sonner"; // Optional: for notifications
+import { toast } from "sonner";
 
-export default function CreateBudget({
-  refreshData,
-}: {
-  refreshData: () => void;
-}) {
+// Removed the refreshData prop requirement so it matches your page.tsx
+export default function CreateBudget() {
   const [name, setName] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
   const { user } = useUser();
+  const router = useRouter(); // 2. Initialize the router
 
   const onCreateBudget = async () => {
     const email = user?.primaryEmailAddress?.emailAddress;
@@ -38,16 +37,17 @@ export default function CreateBudget({
         .values({
           name: name,
           amount: amount,
-          createdBy:user?.primaryEmailAddress?.emailAddress,
-          
+          createdBy: email,
         })
         .returning({ insertedId: budgets.id });
 
       if (result) {
         toast("Budget Created Successfully!");
+        router.refresh(); // 3. MAGIC HAPPENS HERE: Refreshes the page data in the background
       }
     } catch (error) {
       console.error("Failed to create budget:", error);
+      toast("Error creating budget.");
     }
   };
 
@@ -93,18 +93,13 @@ export default function CreateBudget({
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            {/* <button
+            <Button
               disabled={!(name && amount)}
               onClick={onCreateBudget}
               className="w-full rounded-xl bg-[#14f1b2] px-5 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-[#10d49b] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Create Budget
-            </button> */}
-            <Button
-              disabled={!(name && amount)}
-              onClick={onCreateBudget}
-              className="w-full rounded-xl bg-[#14f1b2] px-5 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-[#10d49b] disabled:opacity-50 disabled:cursor-not-allowed"
-            > Create Budget</Button>
+            </Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>
