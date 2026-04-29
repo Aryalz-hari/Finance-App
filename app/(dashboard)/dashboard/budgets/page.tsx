@@ -4,24 +4,47 @@ import BudgetItem from "./_components/BudgetItem";
 import { db } from "@/utils/dbconfig";
 import { budgets, expenses } from "@/utils/schema";
 import { eq, sql } from "drizzle-orm";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 export default async function Budgets() {
-  // 1. Fetch budgets and calculate total spent per budget using Drizzle
+  // 1. Get the logged-in user
+  const user = await currentUser();
+
+  // Safety check: if no user is logged in, redirect them to sign-in
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  // Get the user's primary email address
+  const userEmail = user?.primaryEmailAddress?.emailAddress;
+
+  // Render a safe error if Clerk hasn't loaded the email properly
+  if (!userEmail) {
+    return (
+      <div className="p-8 text-center text-white mt-10">
+        <h2 className="text-xl font-bold">Authentication Error</h2>
+        <p className="text-slate-400">
+          Could not retrieve your user profile. Please try logging in again.
+        </p>
+      </div>
+    );
+  }
+
+  // 2. Fetch budgets filtered by the logged-in user
   const dbBudgets = await db
     .select({
       id: budgets.id,
       name: budgets.name,
       total: budgets.amount,
-      // Sum the related expenses. COALESCE ensures we get 0 if there are no expenses yet.
       spent: sql`COALESCE(SUM(${expenses.amount}), 0)`.mapWith(Number),
     })
     .from(budgets)
     .leftJoin(expenses, eq(budgets.id, expenses.budgetId))
-    // Note: If you want to filter by the logged-in user, you would add:
-    // .where(eq(budgets.createdBy, userEmail))
+    .where(eq(budgets.createdBy, userEmail))
     .groupBy(budgets.id, budgets.name, budgets.amount);
 
-  // 2. Format the data for your UI
+  // 3. Format the data for your UI
   const budgetData = dbBudgets.map((b) => ({
     id: b.id,
     name: b.name,
@@ -30,7 +53,7 @@ export default async function Budgets() {
     remaining: Number(b.total) - Number(b.spent),
   }));
 
-  // Handle the case where there are no budgets yet to prevent Infinity errors in Math.max
+  // Handle the case where there are no budgets yet to prevent Infinity errors
   const maxTotal =
     budgetData.length > 0
       ? Math.max(...budgetData.map((item) => item.total))
@@ -76,7 +99,6 @@ export default async function Budgets() {
                         </p>
                       </div>
 
-                      {/* FIXED: Changed items-end to items-start so the gray bar hangs from the top! */}
                       <div
                         className="relative flex h-44 w-full min-w-[84px] items-start rounded-2xl bg-gradient-to-t from-[#14f1b2] to-emerald-500 sm:h-52 overflow-hidden"
                         style={{ maxHeight: totalHeight }}
@@ -138,6 +160,7 @@ export default async function Budgets() {
             </div>
           ) : (
             <div className="grid gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {/* CLEAN MAPPING: Just rendering the BudgetItem component since the edit buttons are now inside it! */}
               {budgetData.map((item) => (
                 <BudgetItem key={item.id} budget={item} />
               ))}

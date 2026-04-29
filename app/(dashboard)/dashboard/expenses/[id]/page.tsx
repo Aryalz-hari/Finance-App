@@ -9,21 +9,19 @@ import Link from "next/link";
 export default async function ExpenseDetails({
   params,
 }: {
-  // Update the type to support Next.js 15 Promises
   params: Promise<{ id: string }>;
 }) {
-  // 1. Await the params object before reading the ID (Fix for Next.js 15)
   const resolvedParams = await params;
   const budgetId = Number(resolvedParams.id);
 
-  // 2. Safety Check: If the URL ID is not a number, stop right here
+  // 1. Safety Check: Updated Link to /dashboard/budgets
   if (isNaN(budgetId)) {
     return (
       <div className="p-8 text-center text-rose-400 mt-10 border border-slate-800 rounded-2xl mx-4 bg-slate-900/50">
         <h2 className="text-xl font-bold mb-2">Invalid Budget ID</h2>
         <p>The budget ID in the URL must be a valid number.</p>
         <Link
-          href="/budgets"
+          href="/dashboard/budgets"
           className="text-[#14f1b2] underline mt-4 inline-block"
         >
           Return to Budgets
@@ -32,7 +30,6 @@ export default async function ExpenseDetails({
     );
   }
 
-  // 3. Now it is completely safe to run your database query!
   const budgetResult = await db
     .select({
       id: budgets.id,
@@ -47,14 +44,14 @@ export default async function ExpenseDetails({
 
   const budgetInfo = budgetResult[0];
 
-  // If user types an ID number that doesn't exist in the database
+  // 2. Budget Not Found: Fixed the relative path error (added leading /)
   if (!budgetInfo) {
     return (
       <div className="p-8 text-center text-slate-400 mt-10 border border-slate-800 rounded-2xl mx-4 bg-slate-900/50">
         <h2 className="text-xl font-bold text-white mb-2">Budget Not Found</h2>
         <p>We couldn't find a budget with that ID.</p>
         <Link
-          href="/budgets"
+          href="/dashboard/budgets"
           className="text-[#14f1b2] underline mt-4 inline-block"
         >
           Return to Budgets
@@ -63,7 +60,6 @@ export default async function ExpenseDetails({
     );
   }
 
-  // Format data for the BudgetItem component
   const formattedBudget = {
     id: budgetInfo.id,
     name: budgetInfo.name,
@@ -72,20 +68,19 @@ export default async function ExpenseDetails({
     remaining: Number(budgetInfo.total) - Number(budgetInfo.spent),
   };
 
-  // 2. Fetch the list of expenses specifically for this budget
   const expenseList = await db
     .select()
     .from(expenses)
     .where(eq(expenses.budgetId, budgetId))
-    .orderBy(desc(expenses.id)); // Newest first
+    .orderBy(desc(expenses.id));
 
   return (
     <main className="px-4 py-6 sm:px-6 md:px-8 max-w-[1400px] mx-auto w-full">
       <div className="mx-auto w-full space-y-6">
-        {/* Header with Back Button */}
+        {/* 3. Header Back Button: Updated Link to /dashboard/budgets */}
         <div className="flex items-center gap-4">
           <Link
-            href="/budgets" // Navigates back to your main budgets page
+            href="/dashboard/budgets"
             className="rounded-xl border border-slate-700 bg-slate-800/50 p-2 text-slate-300 transition hover:bg-slate-800"
           >
             <svg
@@ -105,11 +100,8 @@ export default async function ExpenseDetails({
           <h1 className="text-2xl font-bold text-white">My Expenses</h1>
         </div>
 
-        {/* Top Grid: Budget Card on Left, Add Expense Form on Right */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <BudgetItem budget={formattedBudget} />
-
-          {/* PASSED THE NEW PROPS HERE */}
           <AddExpense
             budgetId={budgetId}
             budgetAmount={formattedBudget.total}
@@ -117,7 +109,6 @@ export default async function ExpenseDetails({
           />
         </div>
 
-        {/* Bottom Section: Expenses List */}
         <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 sm:rounded-3xl sm:p-5 md:p-6">
           <h2 className="text-xl font-bold text-white mb-4">Latest Expenses</h2>
 

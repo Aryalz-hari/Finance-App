@@ -2,10 +2,37 @@ import { Wallet, TrendingUp, TrendingDown, Target } from "lucide-react";
 import { db } from "@/utils/dbconfig";
 import { budgets, expenses } from "@/utils/schema";
 import { desc, eq } from "drizzle-orm";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 export default async function Dashboard() {
-  // 1. Fetch raw data from the database
-  const budgetsData = await db.select().from(budgets);
+  // 1. Fetch logged-in user and protect the route
+  const user = await currentUser();
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  const userEmail = user?.primaryEmailAddress?.emailAddress;
+
+  // Safety check: Instead of returning null and a blank screen, show a message
+  if (!userEmail) {
+    return (
+      <div className="p-8 text-center text-white mt-10">
+        <h2 className="text-xl font-bold">Authentication Error</h2>
+        <p className="text-slate-400">
+          Could not retrieve your user profile. Please try logging in again.
+        </p>
+      </div>
+    );
+  }
+
+  // 2. SECURE QUERY 1: Fetch ONLY this user's budgets
+  const budgetsData = await db
+    .select()
+    .from(budgets)
+    .where(eq(budgets.createdBy, userEmail));
+
+  // 3. SECURE QUERY 2: Fetch ONLY expenses tied to this user's budgets
   const expensesData = await db
     .select({
       id: expenses.id,
@@ -14,10 +41,11 @@ export default async function Dashboard() {
       budgetName: budgets.name,
     })
     .from(expenses)
-    .leftJoin(budgets, eq(expenses.budgetId, budgets.id))
+    .innerJoin(budgets, eq(expenses.budgetId, budgets.id))
+    .where(eq(budgets.createdBy, userEmail))
     .orderBy(desc(expenses.id));
 
-  // 2. Calculate Summary Card Totals
+  // 4. Calculate Summary Card Totals
   const totalBudget = budgetsData.reduce((sum, b) => sum + Number(b.amount), 0);
   const totalExpenses = expensesData.reduce(
     (sum, e) => sum + Number(e.amount),
@@ -64,7 +92,7 @@ export default async function Dashboard() {
     },
   ];
 
-  // 3. Process Trend Chart Data (Last 7 active days)
+  // 5. Process Trend Chart Data (Last 7 active days)
   const expensesByDate: Record<string, number> = {};
 
   expensesData.forEach((exp) => {
@@ -85,11 +113,13 @@ export default async function Dashboard() {
     chartData.length > 0 ? chartData.map((d) => d.date) : ["No Data"];
   const expensePoints =
     chartData.length > 0 ? chartData.map((d) => d.amount) : [0];
-  const incomePoints = trendLabels.map(() => 0); // Flat line since we don't track daily income yet
+  const incomePoints = trendLabels.map(() => 0);
 
-  const maxY = chartData.length > 0 ? Math.max(...expensePoints) * 1.2 : 1000; // 20% padding at the top
+  // FIX: Prevent Division By Zero by ensuring maxY is never 0!
+  const maxExpenseValue = chartData.length > 0 ? Math.max(...expensePoints) : 0;
+  const maxY = maxExpenseValue > 0 ? maxExpenseValue * 1.2 : 1000;
 
-  // 4. Process Category Donut Chart Data (Grouped by Budget Name)
+  // 6. Process Category Donut Chart Data (Grouped by Budget Name)
   const categoryMap: Record<string, number> = {};
   expensesData.forEach((exp) => {
     const name = exp.budgetName || "Uncategorized";
@@ -106,7 +136,7 @@ export default async function Dashboard() {
     "#ec4899",
   ];
   const categoryItems = Object.entries(categoryMap)
-    .filter(([_, value]) => value > 0) // Only show categories with expenses
+    .filter(([_, value]) => value > 0)
     .map(([name, value], index) => ({
       name,
       value,
@@ -121,8 +151,10 @@ export default async function Dashboard() {
   // SVG Path Generators for Line Chart
   const createLinePath = (values: number[]) => {
     if (values.length === 0) return "";
-    if (values.length === 1)
-      return `M0,${100 - (values[0] / maxY) * 100} L100,${100 - (values[0] / maxY) * 100}`;
+    if (values.length === 1) {
+      const singleY = 100 - (values[0] / maxY) * 100;
+      return `M0,${singleY} L100,${singleY}`;
+    }
     const width = 100;
     const height = 100;
     return values
@@ -162,7 +194,6 @@ export default async function Dashboard() {
             };
           };
 
-          // If it's a single category taking up 100%, adjust angles slightly so the arc renders correctly
           const startAngle = start * 360;
           const endAngle = end === 1 && start === 0 ? 359.9 : end * 360;
           const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
@@ -292,18 +323,21 @@ export default async function Dashboard() {
                     </linearGradient>
                   </defs>
 
-                  <path
-                    d={createAreaPath(expensePoints)}
-                    fill="url(#expenseFill)"
-                  />
-                  <path
-                    d={createLinePath(expensePoints)}
-                    fill="none"
-                    stroke="#ef4444"
-                    strokeWidth="0.7"
-                  />
+                  {chartData.length > 0 && (
+                    <>
+                      <path
+                        d={createAreaPath(expensePoints)}
+                        fill="url(#expenseFill)"
+                      />
+                      <path
+                        d={createLinePath(expensePoints)}
+                        fill="none"
+                        stroke="#ef4444"
+                        strokeWidth="0.7"
+                      />
+                    </>
+                  )}
 
-                  {/* Income Line - Flat since no DB incomes yet */}
                   <path
                     d={createLinePath(incomePoints)}
                     fill="none"
@@ -338,7 +372,7 @@ export default async function Dashboard() {
           <div className="mt-8 flex flex-col flex-1 items-center justify-center">
             {totalCategoryValue === 0 ? (
               <div className="text-slate-500 mb-8 italic">
-                No expense data yet.
+                No expense data yet. Start adding expenses!
               </div>
             ) : (
               <div className="relative h-[220px] w-[220px] sm:h-[290px] sm:w-[290px]">
@@ -367,20 +401,22 @@ export default async function Dashboard() {
               </div>
             )}
 
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-3 text-xs sm:text-sm text-slate-400">
-              {categoryItems.map((item) => (
-                <div key={item.name} className="flex items-center gap-2">
-                  <span
-                    className="h-3 w-3 rounded-sm"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <span>
-                    {item.name} (
-                    {((item.value / totalCategoryValue) * 100).toFixed(0)}%)
-                  </span>
-                </div>
-              ))}
-            </div>
+            {totalCategoryValue > 0 && (
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-3 text-xs sm:text-sm text-slate-400">
+                {categoryItems.map((item) => (
+                  <div key={item.name} className="flex items-center gap-2">
+                    <span
+                      className="h-3 w-3 rounded-sm"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <span>
+                      {item.name} (
+                      {((item.value / totalCategoryValue) * 100).toFixed(0)}%)
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
