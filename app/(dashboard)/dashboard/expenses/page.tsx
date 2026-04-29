@@ -1,32 +1,49 @@
 import React from "react";
 import { db } from "@/utils/dbconfig";
-import { expenses } from "@/utils/schema";
-import { desc } from "drizzle-orm";
+import { budgets, expenses } from "@/utils/schema";
+import { desc, eq } from "drizzle-orm";
+// Import auth tools
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { Search, Plus, ArrowUpRight, Pencil, Trash2 } from "lucide-react";
 
 export default async function ExpensesPage() {
-  // 1. Fetch all expenses from the database
-  const expenseList = await db
-    .select()
-    .from(expenses)
-    .orderBy(desc(expenses.id)); // Newest first
+  // 1. Secure the page and get the logged-in user
+  const user = await currentUser();
+  if (!user) {
+    redirect("/sign-in");
+  }
+  const userEmail = user.primaryEmailAddress?.emailAddress;
+  if (!userEmail) return null;
 
-  // 2. Transform DB data for the Transactions List
+  // 2. Fetch ONLY expenses tied to this user's budgets
+  const expenseList = await db
+    .select({
+      id: expenses.id,
+      name: expenses.name,
+      amount: expenses.amount,
+      createdAt: expenses.createdAt,
+      budgetName: budgets.name, // We can also grab the budget name now!
+    })
+    .from(expenses)
+    .innerJoin(budgets, eq(expenses.budgetId, budgets.id)) // <--- THE FIX
+    .where(eq(budgets.createdBy, userEmail)) // <--- THE FIX
+    .orderBy(desc(expenses.id));
+
+  // 3. Transform DB data for the Transactions List
   const transactions = expenseList.map((exp) => ({
     id: exp.id,
     title: exp.name,
-    category: "Expense", // Assuming category isn't in your schema yet, defaulting to "Expense"
+    category: exp.budgetName || "Expense", // Display the parent budget name as the category
     date: exp.createdAt,
     amount: Number(exp.amount),
     type: "expense",
   }));
 
-  // 3. Transform DB data for the Daily Spending Chart
+  // 4. Transform DB data for the Daily Spending Chart
   const expensesByDate: Record<string, number> = {};
 
-  // Group expenses by their createdAt date
   expenseList.forEach((exp) => {
-    // Extract just "Jan 5" from "Jan 5, 2026" for the chart labels
     const shortDate = exp.createdAt.split(",")[0];
     if (!expensesByDate[shortDate]) {
       expensesByDate[shortDate] = 0;
@@ -34,17 +51,16 @@ export default async function ExpensesPage() {
     expensesByDate[shortDate] += Number(exp.amount);
   });
 
-  // Convert grouped object to array, take the latest 7 days, and reverse for chronological order
   const chartData = Object.entries(expensesByDate)
     .map(([date, amount]) => ({ date, amount }))
     .slice(0, 7)
     .reverse();
 
-  // Dynamically calculate max value for the chart Y-axis (fallback to 100 if no data)
   const maxChartValue =
-    chartData.length > 0 ? Math.max(...chartData.map((d) => d.amount)) : 100;
+    chartData.length > 0
+      ? Math.max(...chartData.map((d) => d.amount)) * 1.2 // Add 20% padding to the top
+      : 100;
 
-  // Generate 5 dynamic Y-axis labels based on the max value
   const yAxisLabels = [
     maxChartValue,
     maxChartValue * 0.75,
@@ -55,7 +71,6 @@ export default async function ExpensesPage() {
 
   return (
     <div className="px-4 py-6 sm:px-6 md:px-8 max-w-[1400px] mx-auto w-full">
-      {/* Page Header */}
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
           Expenses
@@ -77,7 +92,6 @@ export default async function ExpensesPage() {
           </div>
         ) : (
           <div className="relative h-[200px] w-full mt-4 flex items-end pt-4 pr-2">
-            {/* Y-Axis Guidelines */}
             <div className="absolute inset-0 flex flex-col justify-between pb-8">
               {yAxisLabels.map((label, i) => (
                 <div
@@ -91,7 +105,6 @@ export default async function ExpensesPage() {
               ))}
             </div>
 
-            {/* Bars */}
             <div className="relative z-10 flex w-full h-[168px] items-end justify-around pl-12 pr-4 mb-8">
               {chartData.map((data, index) => {
                 const heightPercentage = (data.amount / maxChartValue) * 100;
