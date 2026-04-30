@@ -5,6 +5,8 @@ import { eq, desc, sql } from "drizzle-orm";
 import BudgetItem from "../../budgets/_components/BudgetItem";
 import AddExpense from "../_components/AddExpense";
 import Link from "next/link";
+// 1. Import the new Client Component for deletion
+import DeleteExpenseButton from "../_components/DeleteExpenseButton";
 
 export default async function ExpenseDetails({
   params,
@@ -14,7 +16,7 @@ export default async function ExpenseDetails({
   const resolvedParams = await params;
   const budgetId = Number(resolvedParams.id);
 
-  // 1. Safety Check: Updated Link to /dashboard/budgets
+  // Safety Check: Ensure ID is valid
   if (isNaN(budgetId)) {
     return (
       <div className="p-8 text-center text-rose-400 mt-10 border border-slate-800 rounded-2xl mx-4 bg-slate-900/50">
@@ -30,6 +32,7 @@ export default async function ExpenseDetails({
     );
   }
 
+  // Fetch Budget Info
   const budgetResult = await db
     .select({
       id: budgets.id,
@@ -44,7 +47,7 @@ export default async function ExpenseDetails({
 
   const budgetInfo = budgetResult[0];
 
-  // 2. Budget Not Found: Fixed the relative path error (added leading /)
+  // Budget Not Found Check
   if (!budgetInfo) {
     return (
       <div className="p-8 text-center text-slate-400 mt-10 border border-slate-800 rounded-2xl mx-4 bg-slate-900/50">
@@ -68,6 +71,7 @@ export default async function ExpenseDetails({
     remaining: Number(budgetInfo.total) - Number(budgetInfo.spent),
   };
 
+  // Fetch Expense List
   const expenseList = await db
     .select()
     .from(expenses)
@@ -77,7 +81,7 @@ export default async function ExpenseDetails({
   return (
     <main className="px-4 py-6 sm:px-6 md:px-8 max-w-[1400px] mx-auto w-full">
       <div className="mx-auto w-full space-y-6">
-        {/* 3. Header Back Button: Updated Link to /dashboard/budgets */}
+        {/* Header Back Button */}
         <div className="flex items-center gap-4">
           <Link
             href="/dashboard/budgets"
@@ -100,6 +104,7 @@ export default async function ExpenseDetails({
           <h1 className="text-2xl font-bold text-white">My Expenses</h1>
         </div>
 
+        {/* Top Grid: Budget Card & Add Expense Form */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <BudgetItem budget={formattedBudget} />
           <AddExpense
@@ -109,6 +114,7 @@ export default async function ExpenseDetails({
           />
         </div>
 
+        {/* Latest Expenses Table */}
         <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 sm:rounded-3xl sm:p-5 md:p-6">
           <h2 className="text-xl font-bold text-white mb-4">Latest Expenses</h2>
 
@@ -147,9 +153,8 @@ export default async function ExpenseDetails({
                         {expense.createdAt}
                       </td>
                       <td className="px-4 py-4 text-right">
-                        <button className="text-rose-500 hover:text-rose-400 font-medium">
-                          Delete
-                        </button>
+                        {/* 2. Using the Client Component for Deletion */}
+                        <DeleteExpenseButton expenseId={expense.id} />
                       </td>
                     </tr>
                   ))}

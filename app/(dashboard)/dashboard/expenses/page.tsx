@@ -2,10 +2,12 @@ import React from "react";
 import { db } from "@/utils/dbconfig";
 import { budgets, expenses } from "@/utils/schema";
 import { desc, eq } from "drizzle-orm";
-// Import auth tools
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { Search, Plus, ArrowUpRight, Pencil, Trash2 } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+
+// Import the Delete Icon component
+import DeleteExpenseIcon from "./_components/DeleteExpenseButton";
 
 export default async function ExpensesPage() {
   // 1. Secure the page and get the logged-in user
@@ -13,8 +15,18 @@ export default async function ExpensesPage() {
   if (!user) {
     redirect("/sign-in");
   }
+
   const userEmail = user.primaryEmailAddress?.emailAddress;
-  if (!userEmail) return null;
+  if (!userEmail) {
+    return (
+      <div className="p-8 text-center text-white mt-10">
+        <h2 className="text-xl font-bold">Authentication Error</h2>
+        <p className="text-slate-400">
+          Could not retrieve your user profile. Please try logging in again.
+        </p>
+      </div>
+    );
+  }
 
   // 2. Fetch ONLY expenses tied to this user's budgets
   const expenseList = await db
@@ -23,18 +35,18 @@ export default async function ExpensesPage() {
       name: expenses.name,
       amount: expenses.amount,
       createdAt: expenses.createdAt,
-      budgetName: budgets.name, // We can also grab the budget name now!
+      budgetName: budgets.name,
     })
     .from(expenses)
-    .innerJoin(budgets, eq(expenses.budgetId, budgets.id)) // <--- THE FIX
-    .where(eq(budgets.createdBy, userEmail)) // <--- THE FIX
+    .innerJoin(budgets, eq(expenses.budgetId, budgets.id))
+    .where(eq(budgets.createdBy, userEmail))
     .orderBy(desc(expenses.id));
 
   // 3. Transform DB data for the Transactions List
   const transactions = expenseList.map((exp) => ({
     id: exp.id,
     title: exp.name,
-    category: exp.budgetName || "Expense", // Display the parent budget name as the category
+    category: exp.budgetName || "Expense",
     date: exp.createdAt,
     amount: Number(exp.amount),
     type: "expense",
@@ -58,7 +70,7 @@ export default async function ExpensesPage() {
 
   const maxChartValue =
     chartData.length > 0
-      ? Math.max(...chartData.map((d) => d.amount)) * 1.2 // Add 20% padding to the top
+      ? Math.max(...chartData.map((d) => d.amount)) * 1.2
       : 100;
 
   const yAxisLabels = [
@@ -76,7 +88,7 @@ export default async function ExpensesPage() {
           Expenses
         </h1>
         <p className="mt-1 text-sm text-slate-400 sm:text-base">
-          Manage your transactions
+          Your Transactions
         </p>
       </div>
 
@@ -128,22 +140,6 @@ export default async function ExpensesPage() {
         )}
       </section>
 
-      {/* Controls Section */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-        <div className="relative w-full sm:max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <input
-            type="text"
-            placeholder="Search transactions..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-900/70 border border-slate-800 rounded-lg text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-          />
-        </div>
-        <button className="flex items-center justify-center gap-2 px-4 py-2 bg-[#14f1b2] hover:bg-[#10d49b] text-slate-900 font-medium rounded-lg transition-colors shadow-sm">
-          <Plus className="w-4 h-4" />
-          <span>Add Transaction</span>
-        </button>
-      </div>
-
       {/* Transactions List */}
       <div className="flex flex-col gap-2">
         {transactions.length === 0 ? (
@@ -173,13 +169,9 @@ export default async function ExpensesPage() {
                   NRs {tx.amount.toFixed(2)}
                 </span>
 
-                <div className="flex items-center gap-3 text-slate-500">
-                  <button className="hover:text-white transition-colors">
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                  <button className="hover:text-red-400 transition-colors">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                <div className="flex items-center gap-3 text-slate-500 ">
+                  {/* The Icon Component is successfully integrated here! */}
+                  <DeleteExpenseIcon expenseId={tx.id}/>
                 </div>
               </div>
             </div>
