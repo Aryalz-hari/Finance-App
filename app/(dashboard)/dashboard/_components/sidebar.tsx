@@ -53,9 +53,12 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
                   : "border border-transparent text-slate-400 hover:bg-slate-800/50 hover:text-white"
               }`}
             >
-              {React.cloneElement(item.icon as React.ReactElement, {
-                className: "w-5 h-5",
-              })}
+              {React.cloneElement(
+                item.icon as React.ReactElement<{ className?: string }>,
+                {
+                  className: "w-5 h-5",
+                },
+              )}
               <span>{item.title}</span>
             </Link>
           );
