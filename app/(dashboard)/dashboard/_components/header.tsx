@@ -20,14 +20,7 @@ export default function DashboardHeader({
           <Menu className="w-6 h-6" />
         </button>
 
-        <div className="relative max-w-md w-full hidden sm:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <Input
-            type="text"
-            placeholder="Search..."
-            className="w-full pl-10 bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500 focus-visible:ring-emerald-500/50 h-9"
-          />
-        </div>
+
       </div>
 
       <div className="flex items-center gap-4">

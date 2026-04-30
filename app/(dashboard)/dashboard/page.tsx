@@ -14,7 +14,6 @@ export default async function Dashboard() {
 
   const userEmail = user?.primaryEmailAddress?.emailAddress;
 
-  // Safety check: Instead of returning null and a blank screen, show a message
   if (!userEmail) {
     return (
       <div className="p-8 text-center text-white mt-10">
@@ -26,13 +25,13 @@ export default async function Dashboard() {
     );
   }
 
-  // 2. SECURE QUERY 1: Fetch ONLY this user's budgets
+  // 2. Fetch ONLY this user's budgets
   const budgetsData = await db
     .select()
     .from(budgets)
     .where(eq(budgets.createdBy, userEmail));
 
-  // 3. SECURE QUERY 2: Fetch ONLY expenses tied to this user's budgets
+  // 3. Fetch ONLY expenses tied to this user's budgets
   const expensesData = await db
     .select({
       id: expenses.id,
@@ -58,68 +57,74 @@ export default async function Dashboard() {
       title: "Balance",
       value: `NRs ${currentBalance.toFixed(2)}`,
       subtitle: "Remaining funds",
-      extra: "",
       icon: Wallet,
       iconWrapper: "bg-emerald-500/15 text-emerald-400",
-      extraColor: "text-emerald-400",
     },
     {
       title: "Total Budget",
       value: `NRs ${totalBudget.toFixed(2)}`,
       subtitle: "Allocated this month",
-      extra: "",
       icon: TrendingUp,
       iconWrapper: "bg-emerald-500/15 text-emerald-400",
-      extraColor: "text-slate-400",
     },
     {
       title: "Total Expenses",
       value: `NRs ${totalExpenses.toFixed(2)}`,
       subtitle: "Spent this month",
-      extra: "",
       icon: TrendingDown,
       iconWrapper: "bg-rose-500/15 text-rose-400",
-      extraColor: "text-slate-400",
     },
     {
       title: "Budget Status",
       value: `NRs ${currentBalance.toFixed(2)}`,
       subtitle: `of NRs ${totalBudget.toFixed(2)} total`,
-      extra: "",
       icon: Target,
       iconWrapper: "bg-emerald-500/15 text-emerald-400",
-      extraColor: "text-slate-400",
     },
   ];
 
-  // 5. Process Trend Chart Data (Last 7 active days)
+  // 5. Process Trend Chart Data (Continuous 7-Day Timeline)
   const expensesByDate: Record<string, number> = {};
 
+  // Step A: Pre-fill the last 7 days with 0 so the timeline never breaks
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+    expensesByDate[dateStr] = 0;
+  }
+
+  // Step B: Accurately map real expenses into those 7 buckets
   expensesData.forEach((exp) => {
-    // Extract short date (e.g., "Jan 5")
-    const shortDate = exp.createdAt.split(",")[0] || "Unknown";
-    expensesByDate[shortDate] =
-      (expensesByDate[shortDate] || 0) + Number(exp.amount);
+    const d = new Date(exp.createdAt);
+    if (!isNaN(d.getTime())) {
+      const dateStr = d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+      // Only add to the total if it happened within the last 7 days
+      if (expensesByDate[dateStr] !== undefined) {
+        expensesByDate[dateStr] += Number(exp.amount);
+      }
+    }
   });
 
-  // Get the last 7 dates and reverse for chronological order
-  const chartData = Object.entries(expensesByDate)
-    .map(([date, amount]) => ({ date, amount }))
-    .slice(0, 7)
-    .reverse();
+  const chartData = Object.entries(expensesByDate).map(([date, amount]) => ({
+    date,
+    amount,
+  }));
 
-  // If no data exists, provide empty defaults
-  const trendLabels =
-    chartData.length > 0 ? chartData.map((d) => d.date) : ["No Data"];
-  const expensePoints =
-    chartData.length > 0 ? chartData.map((d) => d.amount) : [0];
-  const incomePoints = trendLabels.map(() => 0);
+  const trendLabels = chartData.map((d) => d.date);
+  const expensePoints = chartData.map((d) => d.amount);
 
-  // FIX: Prevent Division By Zero by ensuring maxY is never 0!
-  const maxExpenseValue = chartData.length > 0 ? Math.max(...expensePoints) : 0;
+  const maxExpenseValue = Math.max(...expensePoints);
+  // Ensure we have a Y-axis ceiling even if expenses are 0
   const maxY = maxExpenseValue > 0 ? maxExpenseValue * 1.2 : 1000;
 
-  // 6. Process Category Donut Chart Data (Grouped by Budget Name)
+  // 6. Process Category Donut Chart Data
   const categoryMap: Record<string, number> = {};
   expensesData.forEach((exp) => {
     const name = exp.budgetName || "Uncategorized";
@@ -151,10 +156,6 @@ export default async function Dashboard() {
   // SVG Path Generators for Line Chart
   const createLinePath = (values: number[]) => {
     if (values.length === 0) return "";
-    if (values.length === 1) {
-      const singleY = 100 - (values[0] / maxY) * 100;
-      return `M0,${singleY} L100,${singleY}`;
-    }
     const width = 100;
     const height = 100;
     return values
@@ -260,15 +261,17 @@ export default async function Dashboard() {
       <section className="mt-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
         {/* Spending Trend Chart */}
         <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 sm:p-6 w-full overflow-hidden">
-          <h2 className="text-xl font-semibold text-white">Spending Trend</h2>
+          <h2 className="text-xl font-semibold text-white">
+            Spending Trend (Last 7 Days)
+          </h2>
 
           <div className="mt-6 w-full pb-4 overflow-x-auto">
-            <div className="w-full min-w-[400px]">
-              <div className="relative h-[220px] sm:h-[300px]">
+            <div className="w-full min-w-[500px]">
+              <div className="relative h-[240px] sm:h-[320px] mt-4">
                 {/* Y-Axis Grid Lines */}
                 {[0, 0.25, 0.5, 0.75, 1].reverse().map((multiplier) => {
                   const tick = Math.round(maxY * multiplier);
-                  const top = `${100 - (tick / maxY) * 100}%`;
+                  const top = `${100 - (tick / Math.max(maxY, 1)) * 100}%`;
                   return (
                     <div
                       key={tick}
@@ -282,18 +285,26 @@ export default async function Dashboard() {
                   );
                 })}
 
-                {/* X-Axis Labels */}
-                <div className="absolute inset-x-0 bottom-6 top-0 flex justify-between">
-                  {trendLabels.map((label, index) => (
-                    <div
-                      key={index}
-                      className="relative border-l border-dashed border-slate-800 flex-1 last:border-r"
-                    >
-                      <span className="absolute bottom-[-28px] left-0 -translate-x-1/2 whitespace-nowrap text-[10px] sm:text-xs text-slate-500">
-                        {label}
-                      </span>
-                    </div>
-                  ))}
+                {/* X-Axis Labels & Vertical Lines */}
+                <div className="absolute inset-x-0 bottom-6 top-0">
+                  {trendLabels.map((label, index) => {
+                    const leftPosition =
+                      trendLabels.length > 1
+                        ? `${(index / (trendLabels.length - 1)) * 100}%`
+                        : "0%";
+
+                    return (
+                      <div
+                        key={index}
+                        className="absolute top-0 bottom-0 border-l border-dashed border-slate-800/50"
+                        style={{ left: leftPosition }}
+                      >
+                        <span className="absolute bottom-[-28px] left-0 -translate-x-1/2 whitespace-nowrap text-[10px] sm:text-xs text-slate-500">
+                          {label}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {/* SVG Lines */}
@@ -337,26 +348,37 @@ export default async function Dashboard() {
                       />
                     </>
                   )}
-
-                  <path
-                    d={createLinePath(incomePoints)}
-                    fill="none"
-                    stroke="#14f1b2"
-                    strokeWidth="0.7"
-                    strokeDasharray="2,2"
-                    opacity="0.3"
-                  />
                 </svg>
+
+                {/* Data Points and Value Labels (NEW) */}
+                <div className="absolute inset-x-0 bottom-6 top-0 pointer-events-none">
+                  {chartData.map((data, index) => {
+                    const leftPosition =
+                      chartData.length > 1
+                        ? `${(index / (chartData.length - 1)) * 100}%`
+                        : "0%";
+                    const bottomPosition = `${(data.amount / Math.max(maxY, 1)) * 100}%`;
+
+                    return (
+                      <div
+                        key={`point-${index}`}
+                        className="absolute w-2.5 h-2.5 bg-rose-500 border-2 border-slate-900 rounded-full -translate-x-1/2 translate-y-1/2 shadow-[0_0_8px_rgba(239,68,68,0.8)]"
+                        style={{ left: leftPosition, bottom: bottomPosition }}
+                      >
+                        {/* The Expense Amount Label */}
+                        <div className="absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] sm:text-[10px] font-semibold text-slate-200 bg-slate-800/90 backdrop-blur-sm px-1.5 py-0.5 rounded border border-slate-700/50">
+                          NRs {data.amount}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="mt-6 flex items-center justify-center gap-6 text-xs sm:text-sm text-slate-400">
+              <div className="mt-10 flex items-center justify-center gap-6 text-xs sm:text-sm text-slate-400">
                 <div className="flex items-center gap-2">
                   <span className="h-3 w-3 rounded-full bg-rose-500" />
                   <span>Expenses</span>
-                </div>
-                <div className="flex items-center gap-2 opacity-50">
-                  <span className="h-3 w-3 rounded-full bg-emerald-400" />
-                  <span>Income (Not Tracked)</span>
                 </div>
               </div>
             </div>
