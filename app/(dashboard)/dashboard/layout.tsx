@@ -22,16 +22,27 @@ user&&checkUserBudgets();
 },[user])
 
   
-  const checkUserBudgets = async () => {
-  const result = await db
-    .select()
-    .from(budgets)
-    .where(eq(budgets.createdBy, user?.primaryEmailAddress?.emailAddress));
+const checkUserBudgets = async () => {
+  // 1. Extract the email to a variable
+  const email = user?.primaryEmailAddress?.emailAddress;
 
-  console.log(result);
+  // 2. The Guard Clause: If there is no email, exit the function immediately.
+  // This tells TypeScript: "If we get past this line, email is definitely a string."
+  if (!email) return;
 
-  if (result?.length === 0) {
-    router.replace("/dashboard/budgets");
+  try {
+    const result = await db
+      .select()
+      .from(budgets)
+      .where(eq(budgets.createdBy, email)); // Use the verified 'email' variable here
+
+    console.log(result);
+
+    if (result?.length === 0) {
+      router.replace("/dashboard/budgets");
+    }
+  } catch (error) {
+    console.error("Error checking budgets:", error);
   }
 };
 

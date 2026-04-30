@@ -36,7 +36,7 @@ export default function CreateBudget() {
         .insert(budgets)
         .values({
           name: name,
-          amount: amount,
+          amount: Number(amount),
           createdBy: email,
         })
         .returning({ insertedId: budgets.id });
