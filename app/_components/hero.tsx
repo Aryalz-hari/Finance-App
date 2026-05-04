@@ -1,7 +1,8 @@
-
-
+'use client'
+import { useRouter } from "next/navigation";
 
 export default function ExpenseTrackerLandingPage() {
+   const router = useRouter();
   const features = [
     {
       title: "Track every expense",
@@ -62,7 +63,8 @@ export default function ExpenseTrackerLandingPage() {
               </p>
 
               <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-                <button className="rounded-2xl bg-emerald-400 px-6 py-3 text-base font-semibold text-slate-950 shadow-xl shadow-emerald-500/20 transition hover:-translate-y-0.5">
+                <button onClick={() => router.push("/sign-in")} 
+                  className="rounded-2xl bg-emerald-400 px-6 py-3 text-base font-semibold text-slate-950 shadow-xl shadow-emerald-500/20 transition hover:-translate-y-0.5">
                   Start Tracking Free
                 </button>
                 <button className="rounded-2xl border border-white/15 bg-white/5 px-6 py-3 text-base font-semibold text-white backdrop-blur transition hover:bg-white/10">
