@@ -225,7 +225,18 @@ export default function ExpenseTrackerLandingPage() {
      
 
       <footer className="border-t border-white/10 px-6 py-8 text-center text-sm text-slate-400">
-        © 2026 ExpenseFlow. Built to make money management simple.
+        <p>© 2026 ExpenseFlow. Built to make money management simple.</p>
+        <p className="mt-2">
+          Hardware and Hosting Partner:{" "}
+          <a 
+            href="https://computerdurbar.com" 
+            target="_blank" 
+            rel="noopener" 
+            className="text-emerald-400 font-medium hover:text-emerald-300 hover:underline transition-colors"
+          >
+            Computer Durbar - Best Laptops in Nepal
+          </a>
+        </p>
       </footer>
     </div>
   );
